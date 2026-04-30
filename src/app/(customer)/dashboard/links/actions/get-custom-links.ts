@@ -76,7 +76,7 @@ export async function getCustomLinks(
       createdAt: formatDate(dbOriginalLink.createdAt),
     };
 
-    const customLinks: CustomLinkDetail[] = dbOriginalLink.links.map((link) => ({
+    const customLinks: CustomLinkDetail[] = dbOriginalLink.links.map((link: typeof dbOriginalLink.links[number]) => ({
       id: link.id,
       slug: link.slug,
       title: link.title,
@@ -92,7 +92,7 @@ export async function getCustomLinks(
     }));
 
     return { originalLink, customLinks };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching custom links:', error);
     return null;
   }

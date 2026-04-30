@@ -126,7 +126,7 @@ export async function trackClick(input: TrackClickInput): Promise<void> {
       where: { id: linkId },
       data: { totalClicks: { increment: 1 } },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     // Log tapi jangan throw — analytics failure tidak boleh mengganggu redirect
     console.error('Error tracking click:', error);
   }

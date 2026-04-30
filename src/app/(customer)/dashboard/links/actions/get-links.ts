@@ -47,7 +47,7 @@ export async function getOriginalLinks(): Promise<OriginalLinkItem[]> {
       return `${year}/${month}/${day}`;
     };
 
-    const linksData: OriginalLinkItem[] = dbOriginalLinks.map((ol) => ({
+    const linksData: OriginalLinkItem[] = dbOriginalLinks.map((ol: typeof dbOriginalLinks[number]) => ({
       id: ol.id,
       url: ol.url,
       domain: ol.domain,
@@ -58,7 +58,7 @@ export async function getOriginalLinks(): Promise<OriginalLinkItem[]> {
     }));
 
     return linksData;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching original links:', error);
     return [];
   }

@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     const links = await linkService.getUserLinks(session.user.id);
     return NextResponse.json({ data: links });
-  } catch (error) {
+  } catch (error: unknown) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ data: newLink }, { status: 201 });
-  } catch (error) {
+  } catch (error: unknown) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

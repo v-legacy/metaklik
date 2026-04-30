@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
         },
       }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Unexpected error in metadata extraction:', error);
     return NextResponse.json(
       {

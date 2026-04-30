@@ -58,7 +58,7 @@ export async function getLink(urlToFetch: string) {
       return null;
     }
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.log("error", error);
     return null;
   }

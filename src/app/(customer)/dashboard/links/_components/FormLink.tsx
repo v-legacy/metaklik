@@ -181,7 +181,7 @@ export default function FormLink({
       } else {
         alert(res.error || 'Failed to create link');
       }
-    } catch (error) {
+    } catch (error: unknown) {
       alert('An unexpected error occurred');
     } finally {
       setLoading(false);
