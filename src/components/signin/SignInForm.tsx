@@ -4,25 +4,21 @@ import React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, Lock, Chrome } from 'lucide-react';
 
+import { signIn } from 'next-auth/react';
+
 const SignInForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // router.push('/maintenance');
-    // Set auth cookie (in real app, this would be done by backend)
-    // document.cookie = 'auth-token=demo-token-123; path=/; max-age=86400'; // 24 hours
-
-    // Get callback URL or default to dashboard
-    const callbackUrl = searchParams.get('callbackUrl') || '/maintenance';
-
-    // Redirect to dashboard or callback URL
-    router.push(callbackUrl);
+    // Note: Email/Password login needs CredentialsProvider in authOptions
+    alert("Email login is not fully set up yet. Please use Google Sign In for now.");
   };
 
   const handleGoogleSignIn = () => {
-    router.push('/maintenance');
+    const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+    signIn('google', { callbackUrl });
   };
 
   return (

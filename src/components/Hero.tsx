@@ -16,7 +16,7 @@ const Hero = () => {
         </p>
         <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center px-4 sm:px-0">
           <a
-            href="#pricing"
+            href="/links"
             className="w-full sm:w-auto px-6 sm:px-8 md:px-10 py-3 border border-transparent rounded-md shadow-sm text-sm sm:text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
           >
             Get Started for Free

@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import {
   Breadcrumb,
@@ -10,8 +11,12 @@ import {
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Separator } from '@radix-ui/react-separator';
 import LogoutButton from '@/components/LogoutButton';
+import { usePathname } from 'next/navigation';
 
 export default function Header() {
+  const path = usePathname().split('/').pop() || '';
+  console.log(path);
+
   return (
     <header className='flex h-16 shrink-0 items-center gap-2 border-b px-4 justify-between'>
       <div className='flex items-center gap-2'>
@@ -20,11 +25,13 @@ export default function Header() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem className='hidden md:block'>
-              <BreadcrumbLink href='#'>Building Your Application</BreadcrumbLink>
+              <BreadcrumbLink href='#'>
+                Building Your Link Preview
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator className='hidden md:block' />
             <BreadcrumbItem>
-              <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+              <BreadcrumbPage>{path}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

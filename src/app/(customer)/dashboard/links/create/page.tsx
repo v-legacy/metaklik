@@ -1,214 +1,50 @@
 'use client';
-import React from 'react';
-import { IconCheck, IconInfoCircle, IconPlus } from '@tabler/icons-react';
-import {
-  AlertCircleIcon,
-  ArrowUpIcon,
-  CheckCircle2Icon,
-  InfoIcon,
-  MailIcon,
-  Search,
-} from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-  InputGroupText,
-  InputGroupTextarea,
-} from '@/components/ui/input-group';
-import { Separator } from '@/components/ui/separator';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import React, { useState } from 'react';
+
+import Preview from '../_components/Preview';
+import FormLink from '../_components/FormLink';
+
+type LinkData = {
+  title: string;
+  image: string;
+  url: string;
+  description: string;
+};
+
 export default function CreatePage() {
-  const [currentLength, setCurrentLength] = React.useState(0);
-  const [loading, setLoading] = React.useState(false);
-  const [checkURL, setCheckURL] = React.useState(false);
-  const [ogData, setOgData] = React.useState<{
-    item_id: number;
-    shop_id: number;
-    title: string;
-    description: string;
-    image: string;
-    url: string;
-    price: number;
-    currency: string;
-    stock: number;
-    sold: number;
-    site_domain?: string;
-    site_name?: string;
-  } | null>(null);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [url, setUrl] = useState('');
+  const [image, setImage] = useState('');
 
-  const handleCheckURL = () => {
-    setCheckURL(false);
-    setLoading(true);
-    // Simulate URL checking logic
-    setTimeout(() => {
-      setCheckURL(true);
-      setLoading(false);
-      setOgData({
-        item_id: 23022109422,
-        shop_id: 218101998,
-        title: 'Converse All Star Classic High Grey White BNIB 100% Authentic',
-        description:
-          'Converse All Star Classic High Grey White – BNIB, 100% Authentic, ukuran tersedia.',
-        image: 'https://cf.shopee.co.id/file/abc12345xyz', // contoh
-        url: 'https://shopee.co.id/Converse-All-Star-Classic-High-Grey-White-BNIB-100-Authentic-i.218101998.23022109422',
-        price: 499000, // asumsi dalam Rupiah
-        currency: 'IDR',
-        stock: 50, // asumsi
-        sold: 120, // asumsi
-        site_domain: 'shopee.co.id',
-        site_name: 'Shopee Indonesia',
-      });
-    }, 1000);
-  };
-  const handleCharacterLimit = (
-    event: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    const maxLength = 120;
+  const handleCreateLink = async (data: LinkData) => { };
 
-    const currentLength = event.target.value.length;
-    if (currentLength >= maxLength) {
-      event.target.value = event.target.value.slice(0, maxLength);
-    }
-
-    setCurrentLength(currentLength);
-  };
   return (
     <>
-      <div className='flex flex-row'>
+      <div className='flex flex-row max-h-screen'>
         <div className='flex flex-col w-full'>
           <h2 className='text-2xl font-bold'>Create Link</h2>
           <p>This is the create link page.</p>
         </div>
       </div>
-      <div className='flex flex-row justify-center'>
-        <div className='grid w-full max-w-2xl gap-6'>
-          <InputGroup>
-            <InputGroupInput placeholder='Enter URL...' />
-            <InputGroupAddon>
-              <Search />
-            </InputGroupAddon>
-            {loading && (
-              <InputGroupAddon align='inline-end'>
-                <IconPlus className='animate-spin' />
-              </InputGroupAddon>
-            )}
-            {checkURL && (
-              <InputGroupAddon align='inline-end'>
-                <IconCheck className='text-green-500!' />
-              </InputGroupAddon>
-            )}
-            <InputGroupAddon align='inline-end'>
-              <InputGroupButton
-                type='button'
-                variant='secondary'
-                onClick={handleCheckURL}
-                disabled={loading}
-              >
-                Search
-              </InputGroupButton>
-            </InputGroupAddon>
-          </InputGroup>
-
-          <Separator />
-          {checkURL && (
-            <Alert
-              variant='default'
-              className='mb-4 border-green-500! bg-[repeating-linear-gradient(135deg,#e5e7eb_0,#e5e7eb_1px,transparent_1px,transparent_8px)] shadow-xl'
-            >
-              <AlertTitle className='text-green-500!'>
-                <CheckCircle2Icon className='text-green-500! inline-block' />{' '}
-                Success! Your url have been checked.
-              </AlertTitle>
-              <AlertDescription>
-                <p>Please check your field below.</p>
-                <ul className='list-inside list-disc text-sm'>
-                  <li>{ogData?.title}</li>
-                  <li>{ogData?.item_id}</li>
-                  <li>{ogData?.shop_id}</li>
-                  <li>{ogData?.url}</li>
-                  <li>{ogData?.price}</li>
-                  <li>{ogData?.currency}</li>
-                  <li>{ogData?.description}</li>
-                  <li>{ogData?.site_name}</li>
-                  <li>{ogData?.site_domain}</li>
-                </ul>
-              </AlertDescription>
-            </Alert>
-          )}
-          <Separator className='animate-pulse ' />
-          <h2 className='text-slate-900 font-semibold align-middle'>
-            <InfoIcon className='w-6! h-6! me-1.5 inline-block' /> Check and
-            Adjust Your Best Details
-          </h2>
-          <InputGroup className='mb-0!'>
-            <InputGroupInput
-              id='title'
-              type='text'
-              placeholder='Enter your title'
+      <div className='flex justify-center w-full p-4'>
+        <div className='grid grid-cols-10 w-full gap-2'>
+          <div className='col-span-7 w-full rounded-2xl shadow-lg p-6'>
+            <FormLink
+              title={title}
+              onTitleChange={setTitle}
+              description={description}
+              onDescriptionChange={setDescription}
+              urlDomain={url}
+              onUrlDomainChange={setUrl}
+              onImageChange={setImage}
+              image={image}
             />
-            <InputGroupAddon align='inline-end'>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <InputGroupButton className='rounded-full' size='icon-xs'>
-                    <IconInfoCircle />
-                  </InputGroupButton>
-                </TooltipTrigger>
-                <TooltipContent>This is content in a tooltip.</TooltipContent>
-              </Tooltip>
-            </InputGroupAddon>
-          </InputGroup>
-          <InputGroup>
-            <InputGroupInput placeholder='example.com' className='pl-11' />
-            <InputGroupAddon>
-              <Label htmlFor='domain' className='text-foreground me-2'>
-                Domain
-              </Label>
-              <InputGroupText id='domain'>https://</InputGroupText>
-            </InputGroupAddon>
-            <InputGroupAddon align='inline-end'>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <InputGroupButton className='rounded-full' size='icon-xs'>
-                    <IconInfoCircle />
-                  </InputGroupButton>
-                </TooltipTrigger>
-                <TooltipContent>This is content in a tooltip.</TooltipContent>
-              </Tooltip>
-            </InputGroupAddon>
-          </InputGroup>
+          </div>
 
-          <InputGroup>
-            <InputGroupTextarea
-              placeholder='Enter your message'
-              onChange={(e) => handleCharacterLimit(e)}
-              maxLength={120}
-            />
-            <InputGroupAddon align='block-end'>
-              <InputGroupText
-                className={
-                  currentLength > 110
-                    ? 'text-red-500 text-xs'
-                    : 'text-muted-foreground text-xs'
-                }
-              >
-                {currentLength}/{120 - currentLength} characters left
-              </InputGroupText>
-            </InputGroupAddon>
-          </InputGroup>
+          <div className='col-span-3 w-full p-6 rounded-2xl shadow-lg'>
+            <Preview title={title} description={description} domain={url} image={image} />
+          </div>
         </div>
       </div>
     </>

@@ -11,9 +11,9 @@ const siteConfig = {
   description:
     'Create and customize your Open Graph tags effortlessly. Generate beautiful link previews for social media with MetaKlik - the ultimate OG tag customization service.',
   shortDescription:
-    'Create and customize your Open Graph tags effortlessly. Generate beautiful link previews for social media with MetaKlik.',
+    'Create and customize your Open Graph tags effortlessly. Generate beautiful link previews for social media with MetaKliks.',
   url: process.env.NEXT_PUBLIC_BASE_URL || 'https://www.metaklik.biz.id',
-  ogImage: '/assets/metaklik.png',
+  ogImage: `https://7eb26161a87b.ngrok-free.app/assets/metaklik.png`,
   ogImageWidth: 1024,
   ogImageHeight: 1024,
   twitterHandle: '@metaklik',
@@ -98,6 +98,8 @@ export const metadata: Metadata = {
   },
 };
 
+import AuthProvider from '@/components/providers/AuthProvider';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -105,7 +107,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

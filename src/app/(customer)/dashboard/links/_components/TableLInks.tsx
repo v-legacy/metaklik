@@ -1,5 +1,11 @@
+/**
+ * @file TableLinks.tsx
+ * @description Komponen tabel untuk menampilkan daftar Original Links.
+ * Menampilkan URL, Domain, Jumlah Custom Links, Created At, dan tombol Action (Detail).
+ * Digunakan di halaman utama `/dashboard/links`.
+ */
 'use client';
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Table,
   TableBody,
@@ -9,74 +15,68 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-
-export type LinksType = {
-  id: string;
-  short_code: string;
-  original_url: string;
-  is_active: boolean;
-  custom_domain: string | null;
-  generate_url: string;
-};
+import { Button } from '@/components/ui/button';
+import { Eye } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { OriginalLinkItem } from '../types/link-types';
 
 interface TableLinksProps {
-  links: LinksType[];
+  links: OriginalLinkItem[];
 }
+
 export default function TableLinks({ links }: TableLinksProps) {
-  const [link, setLinks] = useState<LinksType[]>(links);
-
-  const handleToggleActive = (id: string, newValue: boolean) => {
-    console.log(id);
-
-    setLinks((prev) => {
-      console.log('prev', prev);
-      const updatedLinks = prev.map((link) =>
-        link.id === id ? { ...link, is_active: newValue } : link
-      );
-      console.log('updatedLinks', updatedLinks);
-      return updatedLinks;
-    });
-  };
+  const router = useRouter();
 
   return (
-    <>
-      <Table>
-        <TableCaption>A list of your recent invoices.</TableCaption>
-        <TableHeader className='bg-blue-950'>
-          <TableRow>
-            <TableHead className='w-[100px] text-white font-bold'>#</TableHead>
-            <TableHead className='text-white font-bold'>ID</TableHead>
-            <TableHead className='text-white font-bold'>Domain</TableHead>
-            <TableHead className='text-white font-bold'>Share Link</TableHead>
-            <TableHead className='text-white font-bold'>Status</TableHead>
+    <Table>
+      <TableCaption>Daftar Original Links Anda.</TableCaption>
+      <TableHeader className='bg-blue-950'>
+        <TableRow>
+          <TableHead className='w-[60px] text-white font-bold'>#</TableHead>
+          <TableHead className='text-white font-bold'>Title / URL</TableHead>
+          <TableHead className='text-white font-bold'>Domain</TableHead>
+          <TableHead className='text-white font-bold text-center'>Custom Links</TableHead>
+          <TableHead className='text-white font-bold'>Created At</TableHead>
+          <TableHead className='text-white font-bold text-center'>Action</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {links.map((link, index) => (
+          <TableRow key={link.id} className='hover:bg-muted/50 transition-colors'>
+            <TableCell className='font-medium'>{index + 1}</TableCell>
+            <TableCell className='max-w-[300px]'>
+              <div className='flex flex-col gap-0.5'>
+                <span className='font-medium text-sm truncate'>
+                  {link.title || 'Untitled'}
+                </span>
+                <span className='text-xs text-muted-foreground truncate'>
+                  {link.url}
+                </span>
+              </div>
+            </TableCell>
+            <TableCell className='text-sm'>{link.domain || '-'}</TableCell>
+            <TableCell className='text-center'>
+              <span className='inline-flex items-center justify-center bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full'>
+                {link.totalCustomLinks}
+              </span>
+            </TableCell>
+            <TableCell className='text-sm text-muted-foreground'>
+              {link.createdAt}
+            </TableCell>
+            <TableCell className='text-center'>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='h-8 w-8 hover:bg-blue-100 hover:text-blue-800 transition-colors'
+                onClick={() => router.push(`/dashboard/links/${link.id}`)}
+                title='Lihat Detail'
+              >
+                <Eye className='h-4 w-4' />
+              </Button>
+            </TableCell>
           </TableRow>
-        </TableHeader>
-        <TableBody>
-          {link.map((link, index) => (
-            <TableRow key={link.id}>
-              <TableCell className='font-medium'>{index + 1}</TableCell>
-              <TableCell className='font-medium'>{link.id}</TableCell>
-              <TableCell>{link.custom_domain || 'None'}</TableCell>
-              <TableCell className='font-medium'>{link.generate_url}</TableCell>
-              <TableCell>
-                <Switch
-                  id={`is-active-${link.id}`}
-                  // name='is-active'
-                  checked={link.is_active}
-                  onCheckedChange={(checked) => {
-                    handleToggleActive(link.id, checked === true);
-                  }}
-                />
-                <Label htmlFor={`is-active-${link.id}`}>
-                  {link.is_active ? 'Active' : 'Inactive'}
-                </Label>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
