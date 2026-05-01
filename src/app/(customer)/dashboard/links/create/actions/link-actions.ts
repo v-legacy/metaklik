@@ -1,10 +1,11 @@
 'use server';
 
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/authOptions";
+import prisma from "@/lib/server/db/prisma";
 import { MetadataService } from '@/lib/services/metadata-service';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-
-interface MetadataResult {
+export interface MetadataResult {
   title: string;
   description: string;
   image: string | null;
@@ -15,25 +16,6 @@ interface MetadataResult {
   type?: 'image' | 'video' | 'article' | 'website';
 }
 
-interface APISuccessResponse {
-  success: true;
-  data: MetadataResult;
-}
-
-interface APIErrorResponse {
-  success: false;
-  error: string;
-  code:
-  | 'INVALID_URL'
-  | 'UNREACHABLE'
-  | 'TIMEOUT'
-  | 'PARSE_ERROR'
-  | 'RATE_LIMIT_EXCEEDED'
-  | 'UNKNOWN';
-  retryAfter?: number;
-}
-
-type APIResponse = APISuccessResponse | APIErrorResponse;
 type FormData = {
   title: string;
   image: string;
@@ -46,20 +28,17 @@ export async function getLink(urlToFetch: string) {
     const result = await service.extractMetadata(urlToFetch);
 
     if ('code' in result) {
-      console.log("API Error:", result.error);
+      console.error("Metadata extraction error:", result.error);
       return null;
     }
 
-    console.log("Fetch Data", result);
-    return result;
+    console.log("Extracted Metadata:", result);
+    return result as MetadataResult;
   } catch (error: unknown) {
-    console.log("error", error);
+    console.error("Error in getLink:", error);
     return null;
   }
 }
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth/authOptions";
-import prisma from "@/lib/server/db/prisma";
 
 function generateShortCode(length = 6) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
