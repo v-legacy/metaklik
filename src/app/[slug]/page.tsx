@@ -89,7 +89,13 @@ export async function generateMetadata({
     };
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const getBaseUrl = () => {
+    if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL;
+    if (process.env.VERCEL_PROJECT_PRODUCTION_URL) return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+    return 'https://www.metaklik.biz.id';
+  };
+  const baseUrl = getBaseUrl();
   const shortUrl = `${baseUrl}/${link.slug}`;
 
   // Optimasi panjang title (50-60 chars) dan description (110-160 chars)
