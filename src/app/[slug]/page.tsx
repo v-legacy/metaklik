@@ -98,9 +98,20 @@ export async function generateMetadata({
   const ogTitle = optimizeTitle(rawTitle);
   const ogDescription = truncateText(rawDescription, 155);
 
-  // Gunakan dynamic OG image route untuk ukuran 1200x630 + branding
-  const ogImageUrl = `${baseUrl}/api/og?slug=${link.slug}`;
-  const rawImage = link.image || link.originalLink.image;
+  // Prioritaskan gambar custom (hasil crop/upload) langsung tanpa overlay
+  // Jika tidak ada gambar sama sekali, fall back ke gambar kosong
+  let finalOgImage = '';
+  
+  if (link.image) {
+    // Jika user mengupload gambar custom (Supabase URL), gunakan langsung
+    finalOgImage = link.image;
+  } else if (link.originalLink.image) {
+    // Jika hanya ada gambar bawaan original, gunakan dynamic OG generator untuk merapikan
+    finalOgImage = `${baseUrl}/api/og?slug=${link.slug}`;
+  } else {
+    // Fallback default image jika diinginkan
+    finalOgImage = `${baseUrl}/api/og?slug=${link.slug}`;
+  }
 
   return {
     title: ogTitle,
@@ -113,10 +124,10 @@ export async function generateMetadata({
       siteName: 'MetaKlik',
       images: [
         {
-          url: rawImage ? ogImageUrl : (rawImage || ''),
+          url: finalOgImage,
           width: 1200,
           height: 630,
-          alt: rawTitle,
+          alt: ogTitle,
         },
       ],
     },
@@ -124,7 +135,7 @@ export async function generateMetadata({
       card: 'summary_large_image',
       title: ogTitle,
       description: ogDescription,
-      images: rawImage ? [ogImageUrl] : [],
+      images: finalOgImage ? [finalOgImage] : [],
     },
     // Jangan index shortlink di search engine
     robots: {
