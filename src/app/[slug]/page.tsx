@@ -128,6 +128,7 @@ export async function generateMetadata({
           width: 1200,
           height: 630,
           alt: ogTitle,
+          type: 'image/jpeg',
         },
       ],
     },
@@ -136,11 +137,6 @@ export async function generateMetadata({
       title: ogTitle,
       description: ogDescription,
       images: finalOgImage ? [finalOgImage] : [],
-    },
-    // Jangan index shortlink di search engine
-    robots: {
-      index: false,
-      follow: false,
     },
   };
 }
