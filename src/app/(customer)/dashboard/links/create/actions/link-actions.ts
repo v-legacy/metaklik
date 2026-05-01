@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/authOptions";
 import prisma from "@/lib/server/db/prisma";
 import { MetadataService } from '@/lib/services/metadata-service';
+import { SupabaseStorageService } from '@/lib/server/services/storage.service';
 
 export interface MetadataResult {
   title: string;
@@ -58,9 +59,19 @@ export async function createLink(data: FormData, ogData: MetadataResult) {
     }
 
     const userId = (session.user as any).id;
-
     console.log("data OG", ogData);
 
+    // 0. Handle Base64 Image Upload to Supabase
+    let finalImageUrl = data.image;
+    if (finalImageUrl && finalImageUrl.startsWith('data:image/')) {
+      try {
+        const storageService = new SupabaseStorageService();
+        finalImageUrl = await storageService.uploadBase64Image(finalImageUrl, 'metaklik');
+      } catch (uploadError: any) {
+        console.error("Failed to upload image to Supabase:", uploadError);
+        return { success: false, error: "Gagal mengunggah gambar. Pastikan konfigurasi Storage benar." };
+      }
+    }
 
     // 1. Upsert OriginalLink
     const originalLink = await prisma.originalLink.upsert({
@@ -70,7 +81,7 @@ export async function createLink(data: FormData, ogData: MetadataResult) {
         url: ogData.url,
         title: ogData.title,
         description: ogData.description,
-        image: ogData.image,
+        image: ogData.image, // keep original scraped image in OriginalLink
         domain: ogData.displayUrl,
         type: ogData.type,
       }
@@ -101,7 +112,7 @@ export async function createLink(data: FormData, ogData: MetadataResult) {
         slug: uniqueSlug,
         title: data.title,
         description: data.description,
-        image: data.image,
+        image: finalImageUrl, // use uploaded image if any
         originalLinkId: originalLink.id,
         userId: userId,
       }
