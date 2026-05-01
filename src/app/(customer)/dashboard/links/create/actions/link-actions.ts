@@ -1,5 +1,7 @@
 'use server';
 
+import { MetadataService } from '@/lib/services/metadata-service';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 interface MetadataResult {
@@ -40,24 +42,16 @@ type FormData = {
 
 export async function getLink(urlToFetch: string) {
   try {
-    const response = await fetch(`${API_URL}/api/links/metadata`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_TOKEN}`,
-      },
-      body: JSON.stringify({ url: urlToFetch })
-    });
-    const data: APIResponse = await response.json();
+    const service = new MetadataService();
+    const result = await service.extractMetadata(urlToFetch);
 
-    if (data.success) {
-      console.log("Fetch Data", data.data);
-      return data.data;
-    } else {
-      console.log("API Error:", data.error);
+    if ('code' in result) {
+      console.log("API Error:", result.error);
       return null;
     }
 
+    console.log("Fetch Data", result);
+    return result;
   } catch (error: unknown) {
     console.log("error", error);
     return null;
