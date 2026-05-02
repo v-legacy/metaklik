@@ -14,6 +14,7 @@
 'use server';
 
 import prisma from '@/lib/server/db/prisma';
+import { headers } from 'next/headers';
 
 type TrackClickInput = {
   linkId: string;
@@ -106,6 +107,20 @@ function extractReferrerDomain(referrer: string): string {
 }
 
 /**
+ * Mendapatkan nama negara penuh dari 2-letter country code (ISO 3166-1 alpha-2)
+ * contoh: 'ID' -> 'Indonesia', 'US' -> 'United States'
+ */
+function getCountryName(countryCode: string | null): string {
+  if (!countryCode || countryCode === 'Unknown' || countryCode === '') return 'Unknown';
+  try {
+    const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+    return displayNames.of(countryCode) || countryCode;
+  } catch {
+    return countryCode;
+  }
+}
+
+/**
  * Mencatat klik pada shortlink.
  * - Memfilter trafik bot/sosmed.
  * - Upsert ke LinkAnalytics berdasarkan composite key (daily bucket per dimensi)
@@ -115,6 +130,10 @@ function extractReferrerDomain(referrer: string): string {
  */
 export async function trackClick(input: TrackClickInput): Promise<void> {
   try {
+    const headersList = await headers();
+    const vercelCountryCode = headersList.get('x-vercel-ip-country');
+    const country = getCountryName(vercelCountryCode);
+
     const { linkId, referrer = '', userAgent = '', sourceRef } = input;
 
     // Jangan catat klik jika yang mengakses adalah bot (contoh: WhatsApp Preview Crawler)
@@ -147,7 +166,7 @@ export async function trackClick(input: TrackClickInput): Promise<void> {
           browser,
           os,
           device,
-          country: 'Unknown', // TODO: Implement GeoIP lookup
+          country, // Menggunakan Vercel GeoIP
         },
       },
       update: {
@@ -160,7 +179,7 @@ export async function trackClick(input: TrackClickInput): Promise<void> {
         browser,
         os,
         device,
-        country: 'Unknown',
+        country,
         clicks: 1,
       },
     });
