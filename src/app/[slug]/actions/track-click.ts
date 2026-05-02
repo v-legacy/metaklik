@@ -19,7 +19,40 @@ type TrackClickInput = {
   linkId: string;
   referrer?: string;
   userAgent?: string;
+  sourceRef?: string;
 };
+
+/**
+ * Mendeteksi apakah User-Agent adalah bot/crawler sosial media.
+ * Jika ya, kita tidak akan mencatatnya sebagai klik pengunjung.
+ */
+function isBotUserAgent(ua: string): boolean {
+  const botKeywords = [
+    'bot', 'crawler', 'spider', 'facebookexternalhit', 'WhatsApp',
+    'Twitterbot', 'LinkedInBot', 'TelegramBot', 'Facebot', 'Discordbot',
+    'Slackbot', 'googlebot', 'bingbot', 'yandex', 'baiduspider', 'Mediapartners-Google'
+  ];
+  const lowerUA = ua.toLowerCase();
+  return botKeywords.some(keyword => lowerUA.includes(keyword.toLowerCase()));
+}
+
+/**
+ * Mapping parameter manual ?ref=wa menjadi nama platform yang mudah dibaca.
+ */
+function mapSourceRefToPlatform(ref: string): string {
+  const map: Record<string, string> = {
+    wa: 'WhatsApp',
+    ig: 'Instagram',
+    fb: 'Facebook',
+    tw: 'Twitter',
+    x: 'X',
+    tt: 'TikTok',
+    li: 'LinkedIn',
+    tg: 'Telegram',
+    line: 'LINE'
+  };
+  return map[ref.toLowerCase()] || ref;
+}
 
 /**
  * Parsing User-Agent string untuk mendapatkan info browser, OS, dan device type.
@@ -74,6 +107,7 @@ function extractReferrerDomain(referrer: string): string {
 
 /**
  * Mencatat klik pada shortlink.
+ * - Memfilter trafik bot/sosmed.
  * - Upsert ke LinkAnalytics berdasarkan composite key (daily bucket per dimensi)
  * - Increment totalClicks pada Link
  *
@@ -81,13 +115,23 @@ function extractReferrerDomain(referrer: string): string {
  */
 export async function trackClick(input: TrackClickInput): Promise<void> {
   try {
-    const { linkId, referrer = '', userAgent = '' } = input;
+    const { linkId, referrer = '', userAgent = '', sourceRef } = input;
+
+    // Jangan catat klik jika yang mengakses adalah bot (contoh: WhatsApp Preview Crawler)
+    if (isBotUserAgent(userAgent)) {
+      return;
+    }
 
     // Parse User-Agent
     const { browser, os, device } = parseUserAgent(userAgent);
 
     // Extract referrer domain
-    const referrerDomain = extractReferrerDomain(referrer);
+    let finalReferrer = 'Direct';
+    if (sourceRef) {
+      finalReferrer = mapSourceRefToPlatform(sourceRef);
+    } else {
+      finalReferrer = extractReferrerDomain(referrer);
+    }
 
     // Tanggal hari ini (tanpa jam, menit, detik) untuk daily bucket
     const today = new Date();
@@ -99,7 +143,7 @@ export async function trackClick(input: TrackClickInput): Promise<void> {
         unique_analytics_dimension: {
           linkId,
           date: today,
-          referrer: referrerDomain,
+          referrer: finalReferrer,
           browser,
           os,
           device,
@@ -112,7 +156,7 @@ export async function trackClick(input: TrackClickInput): Promise<void> {
       create: {
         linkId,
         date: today,
-        referrer: referrerDomain,
+        referrer: finalReferrer,
         browser,
         os,
         device,

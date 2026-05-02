@@ -39,6 +39,7 @@ function optimizeTitle(title: string): string {
 
 interface SlugPageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 /**
@@ -78,6 +79,7 @@ function detectMobile(userAgent: string): {
  */
 export async function generateMetadata({
   params,
+  searchParams,
 }: SlugPageProps): Promise<Metadata> {
   const { slug } = await params;
   const link = await getLinkBySlug(slug);
@@ -150,8 +152,13 @@ export async function generateMetadata({
 /**
  * Page Component — Halaman publik shortlink.
  */
-export default async function SlugPage({ params }: SlugPageProps) {
+export default async function SlugPage({ params, searchParams }: SlugPageProps) {
   const { slug } = await params;
+  
+  // Await searchParams and extract 'ref' or 'utm_source'
+  const resolvedSearchParams = await searchParams;
+  const rawRef = resolvedSearchParams.ref || resolvedSearchParams.utm_source;
+  const sourceRef = Array.isArray(rawRef) ? rawRef[0] : rawRef || undefined;
   const link = await getLinkBySlug(slug);
 
   // Slug tidak ditemukan di database
@@ -222,6 +229,7 @@ export default async function SlugPage({ params }: SlugPageProps) {
         linkId={link.id}
         isMobile={isMobile}
         isAndroid={isAndroid}
+        sourceRef={sourceRef}
       />
     </InterstitialPage>
   );

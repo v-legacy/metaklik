@@ -29,6 +29,8 @@ interface RedirectHandlerProps {
   isMobile: boolean;
   /** Apakah user mengakses dari Android */
   isAndroid: boolean;
+  /** Parameter manual (opsional, dari ?ref=xxx) */
+  sourceRef?: string;
 }
 
 /** Durasi countdown untuk desktop (dalam detik) */
@@ -43,6 +45,7 @@ export default function RedirectHandler({
   linkId,
   isMobile,
   isAndroid,
+  sourceRef,
 }: RedirectHandlerProps) {
   const [countdown, setCountdown] = useState(DESKTOP_COUNTDOWN_SECONDS);
   const [status, setStatus] = useState<'loading' | 'redirecting' | 'failed'>(
@@ -60,6 +63,7 @@ export default function RedirectHandler({
       linkId,
       referrer: typeof document !== 'undefined' ? document.referrer : '',
       userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+      sourceRef,
     });
   }, [linkId]);
 
