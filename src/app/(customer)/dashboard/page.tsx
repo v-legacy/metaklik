@@ -1,27 +1,33 @@
 import { ChartActivity } from './_components/ChartActivity';
-import { LinkActive } from './_components/LinkActive';
 import { Referrer } from './_components/Referrer';
 import { TopPerformingLink } from './_components/TopPerformingLink';
+import { TopCountries } from './_components/TopCountries';
+import { KPICards } from './_components/KPICards';
 
-export default function DashboardPage() {
+import { getDashboardStats } from './actions/get-dashboard-stats';
+
+export default async function DashboardPage() {
+  const stats = await getDashboardStats();
+
   return (
-    <>
-      <div className='lg:grid lg:auto-rows-min gap-2 lg:grid-cols-3'>
-        <div className='aspect-video rounded-xl bg-muted/50 w-full p-4'>
-          <Referrer />
-        </div>
-        <div className='aspect-video rounded-xl bg-muted/50 p-4'>
-          <TopPerformingLink />
-        </div>
-        <div className='aspect-video rounded-xl bg-muted/50 p-4'>
-          <LinkActive />
-        </div>
+    <div className='flex flex-col gap-6'>
+      <div className='w-full'>
+        <KPICards 
+          totalClicks={stats.totalClicksCount} 
+          activeLinks={stats.activeLinksCount} 
+          totalLinks={stats.totalLinksCount} 
+        />
       </div>
-      <div className='w-full md:flex-1 rounded-xl bg-muted/50 md:min-h-min'>
-        <div className='w-full md:flex-1 p-4 rounded-lg'>
-          <ChartActivity />
-        </div>
+
+      <div className='w-full'>
+        <ChartActivity data={stats.activityData} />
       </div>
-    </>
+
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+        <Referrer data={stats.topReferrers} />
+        <TopPerformingLink data={stats.topLinks} />
+        <TopCountries data={stats.topCountries} />
+      </div>
+    </div>
   );
 }

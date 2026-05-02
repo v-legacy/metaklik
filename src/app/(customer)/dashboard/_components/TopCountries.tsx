@@ -1,13 +1,10 @@
 'use client';
 
-import { TrendingUp } from 'lucide-react';
-import { Bar, BarChart, CartesianGrid, Rectangle, XAxis } from 'recharts';
-
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -18,9 +15,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 
-export const description = 'A bar chart with an active bar';
-
-export function Referrer({ data = [] }: { data?: { referrer: string; clicks: number }[] }) {
+export function TopCountries({ data = [] }: { data?: { country: string; clicks: number }[] }) {
   const chartData = data.map((item, index) => ({
     id: `item${index}`,
     visitors: item.clicks,
@@ -32,7 +27,7 @@ export function Referrer({ data = [] }: { data?: { referrer: string; clicks: num
     ...data.reduce((acc, item, index) => ({
       ...acc,
       [`item${index}`]: {
-        label: item.referrer,
+        label: item.country.length > 25 ? item.country.substring(0, 25) + '...' : item.country,
         color: `var(--chart-${(index % 5) + 1})`,
       },
     }), {}),
@@ -41,20 +36,27 @@ export function Referrer({ data = [] }: { data?: { referrer: string; clicks: num
   return (
     <Card className='flex flex-col h-full'>
       <CardHeader>
-        <CardTitle>Referrer Traffic</CardTitle>
-        <CardDescription>Sumber asal klik terbanyak</CardDescription>
+        <CardTitle>Top Countries</CardTitle>
+        <CardDescription>Negara asal pengunjung</CardDescription>
       </CardHeader>
-      <CardContent className='w-full'>
+      <CardContent className='flex-1 w-full'>
         {data.length === 0 ? (
           <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
             Belum ada data
           </div>
         ) : (
           <ChartContainer config={chartConfig}>
-            <BarChart accessibilityLayer data={chartData}>
-              <CartesianGrid vertical={false} />
-              <XAxis
+            <BarChart
+              accessibilityLayer
+              data={chartData}
+              layout='vertical'
+              margin={{
+                left: 60,
+              }}
+            >
+              <YAxis
                 dataKey='id'
+                type='category'
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
@@ -62,27 +64,12 @@ export function Referrer({ data = [] }: { data?: { referrer: string; clicks: num
                   chartConfig[value as keyof typeof chartConfig]?.label
                 }
               />
+              <XAxis dataKey='visitors' type='number' hide />
               <ChartTooltip
                 cursor={false}
                 content={<ChartTooltipContent hideLabel />}
               />
-              <Bar
-                dataKey='visitors'
-                strokeWidth={2}
-                radius={8}
-                activeIndex={0}
-                activeBar={({ ...props }) => {
-                  return (
-                    <Rectangle
-                      {...props}
-                      fillOpacity={0.8}
-                      stroke={props.payload.fill}
-                      strokeDasharray={4}
-                      strokeDashoffset={4}
-                    />
-                  );
-                }}
-              />
+              <Bar dataKey='visitors' layout='vertical' radius={5} />
             </BarChart>
           </ChartContainer>
         )}
